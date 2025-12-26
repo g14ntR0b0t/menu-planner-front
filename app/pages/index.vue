@@ -283,7 +283,7 @@ watch(filter_type_selected, (newVal, oldVal) => {
       ></v-calendar>
     </v-sheet>
     <v-dialog v-model="add_meal" max-width="1200">
-      <v-card class="mx-auto px-5" min-width="1200" elevation="5">
+      <v-card class="mx-auto px-5" elevation="5">
         <v-card-title class="bg-brown-darken-1 text-white d-flex justify-space-between">
           Registrar Comida
           <v-btn icon variant="text" @click="add_meal=false">
