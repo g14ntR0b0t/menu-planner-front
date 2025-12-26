@@ -1,0 +1,162 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+
+const router  = useRouter()
+const route   = useRoute()
+interface MealGroup {
+  id          : number,
+  name        : string,
+  description : string,
+  active      : boolean
+}
+const form        = ref()
+const id          = computed(() => route.params.id ?? null)
+const meal_group  = ref<MealGroup | null>(null)
+const error       = ref<boolean>(false)
+const error_msg   = ref<string>('')
+const success     = ref<boolean>(false)
+const orig_name   = ref<string>('')
+
+onMounted(async() => {
+  await getData()
+})
+
+const getData = async() => {
+  try{
+    const response = await $fetch(`/api/mealGroups/getMealGroup/${id.value}`, {
+      method  : 'GET',
+      params  : {}
+    })
+    meal_group.value  = response
+    orig_name.value   = meal_group.value.name
+  }
+  catch (err){
+    error.value =  true
+    error_msg.value = err?.data?.data?.detail
+  }
+}
+const submit = async () => {
+  const { valid } = await form.value.validate()
+  if (valid) {
+    try {
+      const response = await $fetch(`/api/mealGroups/updateMealGroup/${id.value}`, {
+        method  : 'POST',
+        body    : {
+          name        : meal_group.value.name,
+          description : meal_group.value.description,
+          active      : meal_group.value.active,
+        }
+      })
+      success.value = true
+    }
+    catch (err){
+      const data = err?.data?.data
+      const msg = Object.entries(data)
+      .map(([key, values]) => `${key}: ${values.join(", ")}`)
+      .join(" | ");
+      error_msg.value   =  `[ERROR ${err?.status}] - Oops el siguiente error: ${msg}`
+      error.value       =  true
+    }
+  }
+}
+</script>
+
+<template>
+  <v-container style=" max-width: 1600px">
+    <v-form ref="form" v-if="meal_group">
+      <v-row>
+        <v-col cols="12" align="center">
+          <h1>Grupo Alimento: {{orig_name}}</h1>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" align="end">
+          <v-btn variant="flat"
+                 color="#4E3130"
+                 size="small"
+                 prepend-icon="mdi-format-list-bulleted"
+                 @click="router.push('/meal_groups/list')"
+          >
+            Listado
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-card variant="elevated" style="padding: 30px;" elevation="5" class="mt-10">
+        <v-card-text >
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                  label="Nombre"
+                  v-model="meal_group.name"
+                  variant="outlined"
+                  :rules="[v => !!v || 'Es necesario ingresar un nombre.']"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                  label="Descripción"
+                  v-model="meal_group.description"
+                  variant="outlined"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-checkbox
+                v-model="meal_group.active"
+                color="#563635"
+                label="Activo"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions align="end">
+          <v-row>
+            <v-col cols="12" align="end">
+              <v-btn variant="flat"
+                     prepend-icon="mdi-content-save"
+                     color="#4E3130"
+                     @click="submit"
+              >
+                Guardar
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+    <v-snackbar
+      v-model="error"
+      multi-line
+    >
+      {{error_msg}}
+      <template v-slot:actions>
+        <v-btn
+          color="red"
+          variant="text"
+          @click="error = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-dialog v-model="success" max-width="400" persistent>
+      <v-card>
+        <v-card-title class="text-h6">Éxito</v-card-title>
+        <v-card-text>El registro fue actualizado correctamente.</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" @click="router.push('/meal_groups/list')">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
+</template>
+
+<style scoped>
+
+</style>

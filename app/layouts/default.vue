@@ -1,0 +1,16 @@
+<script setup lang="ts">
+
+</script>
+
+<template>
+  <v-app>
+    <v-main>
+      <NavBar/>
+      <slot />
+    </v-main>
+  </v-app>
+</template>
+
+<style scoped>
+
+</style>
