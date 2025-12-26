@@ -41,6 +41,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     devServer: {
+      preset: 'vercel',
       host: '0.0.0.0', // Makes dev server accessible externally
     },
     // For production/build, use environment variables (like NITRO_PORT)
