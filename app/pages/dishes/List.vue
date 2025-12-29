@@ -36,14 +36,18 @@
     {type: 'Cena',      icon: 'weather-night',          color: 'indigo-darken-4'},
   ])
   const getDishes = async () => {
+    loading.value = true
     try{
       const response = await $fetch('/api/dishes/getDishes',{
         method: 'GET',
       })
       dishes.value = response
       filtered_dishes.value = dishes.value
+      loading.value = false
     }
-    catch{}
+    catch{
+      loading.value = false
+    }
   }
   const getTypeIcon = (type_name) => {
     const style = types_style.value.find((item) => item.type == type_name)
@@ -96,6 +100,18 @@
 </script>
 
 <template>
+  <v-overlay
+    :model-value="loading"
+    class="align-center justify-center"
+    persistent
+  >
+    <v-progress-circular
+      indeterminate
+      size="64"
+      width="6"
+      color="brown-darken-2"
+    />
+  </v-overlay>
   <v-container>
     <v-row>
       <v-col>
@@ -128,7 +144,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row v-show="!dishes.length">
+    <v-row v-show="!dishes.length && !loading">
       <v-col cols="12">
         <v-card elevation="3">
           <v-card-text style="background-color: #e5e5e5;">
