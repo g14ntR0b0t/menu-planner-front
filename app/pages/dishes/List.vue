@@ -100,18 +100,6 @@
 </script>
 
 <template>
-  <v-overlay
-    :model-value="loading"
-    class="align-center justify-center"
-    persistent
-  >
-    <v-progress-circular
-      indeterminate
-      size="64"
-      width="6"
-      color="brown-darken-2"
-    />
-  </v-overlay>
   <v-container>
     <v-row>
       <v-col>
@@ -158,7 +146,15 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row justify="center">
+    <v-row v-if="loading">
+      <v-col cols="12" md="4" lg="3" xl="3" v-for="i in 4" :key="i">
+        <v-skeleton-loader
+            class="mx-auto border"
+            type="image, article"
+        ></v-skeleton-loader>
+      </v-col>
+    </v-row>
+    <v-row justify="center" v-else>
       <v-col cols="12" md="4" lg="3" xl="3" v-for="dish in filtered_dishes">
         <v-card
           :disabled="loading"
